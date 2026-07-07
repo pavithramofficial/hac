@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Neo Memphis GPA & CGPA Calculator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #ffe66d;
+        margin: 0;
+        padding: 30px;
+        background-image: radial-gradient(circle at 20% 20%, #ff6b6b 0 40px, transparent 41px), radial-gradient(circle at 80% 30%, #4ecdc4 0 35px, transparent 36px);
+      }
+
+      .container {
+        max-width: 900px;
+        margin: auto;
+      }
+
+      .card {
+        background: #fff;
+        border: 4px solid #000;
+        border-radius: 18px;
+        box-shadow: 8px 8px #000;
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      input,
+      select,
+      button {
+        padding: 10px;
+        margin: 5px;
+        border: 3px solid #000;
+        border-radius: 10px;
+      }
+
+      button {
+        background: #6c63ff;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border: 2px solid #000;
+        padding: 8px;
+        text-align: center;
+      }
+
+      th {
+        background: #4ecdc4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎓 GPA & CGPA Calculator</h1>
+
+      <div class="card">
+        <input id="subject" placeholder="Subject" />
+        <input id="credit" type="number" placeholder="Credits" />
+        <select id="grade">
+          <option>S</option>
+          <option>A</option>
+          <option>B</option>
+          <option>C</option>
+          <option>D</option>
+          <option>F</option>
+        </select>
+        <button onclick="addSubject()">Add</button>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Credits</th>
+              <th>Grade</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tb"></tbody>
+        </table>
+
+        <button onclick="calcGPA()">Calculate GPA</button>
+        <h3 id="gpa">Semester GPA: 0.00</h3>
+      </div>
+
+      <div class="card">
+        <h2>Running CGPA</h2>
+        <input id="prevCredits" type="number" placeholder="Previous Credits" />
+        <input id="prevCGPA" type="number" step="0.01" placeholder="Previous CGPA" />
+        <button onclick="calcCGPA()">Calculate CGPA</button>
+        <h3 id="cgpa">CGPA: 0.00</h3>
+      </div>
+
+      <div class="card">
+        <h2>What If Mode</h2>
+        <input id="futureSem" type="number" placeholder="Remaining Semesters" />
+        <input id="futureCredits" type="number" placeholder="Credits/Semester" />
+        <select id="futureGrade">
+          <option>S</option>
+          <option>A</option>
+          <option>B</option>
+          <option>C</option>
+          <option>D</option>
+          <option>F</option>
+        </select>
+        <button onclick="predict()">Predict Final CGPA</button>
+        <h3 id="pred">Expected CGPA: 0.00</h3>
+      </div>
+    </div>
+
+    <script>
+      let subs = [];
+
+      function gp(g) {
+        return { S: 10, A: 9, B: 8, C: 7, D: 6, F: 0 }[g] ?? 0;
+      }
+
+      function addSubject() {
+        let s = subject.value,
+          c = +credit.value,
+          g = grade.value;
+
+        if (!s || c <= 0) return alert("Enter valid values");
+
+        subs.push({ s, c, g });
+        render();
+        subject.value = "";
+        credit.value = "";
+      }
+
+      function render() {
+        tb.innerHTML = "";
+        subs.forEach((x, i) =>
+          (tb.innerHTML += `<tr><td>${x.s}</td><td>${x.c}</td><td>${x.g}</td><td><button onclick="subs.splice(${i},1);render()">Delete</button></td></tr>`)
+        );
+      }
+
+      function sem() {
+        let cr = 0,
+          pt = 0;
+
+        subs.forEach((x) => {
+          cr += x.c;
+          pt += x.c * gp(x.g);
+        });
+
+        return { cr, pt, g: cr ? pt / cr : 0 };
+      }
+
+      function calcGPA() {
+        gpa.textContent = "Semester GPA: " + sem().g.toFixed(2);
+      }
+
+      function calcCGPA() {
+        let s = sem(),
+          pc = +prevCredits.value || 0,
+          pg = +prevCGPA.value || 0;
+        let cg = (pc * pg + s.pt) / (pc + s.cr || 1);
+        cgpa.textContent = "CGPA: " + cg.toFixed(2);
+      }
+
+      function predict() {
+        let s = sem(),
+          pc = +prevCredits.value || 0,
+          pg = +prevCGPA.value || 0,
+          rs = +futureSem.value || 0,
+          fc = +futureCredits.value || 0,
+          fg = gp(futureGrade.value);
+        let pts = pc * pg + s.pt + rs * fc * fg;
+        let cr = pc + s.cr + rs * fc;
+        pred.textContent = "Expected CGPA: " + (pts / (cr || 1)).toFixed(2);
+      }
+    </script>
+  </body>
+</html>
+cd d:\PAVI\Challenges\HackWeek
+git remote set-url origin https://github.com/<your-username>/<repo-name>.git
+git push -u origin main
